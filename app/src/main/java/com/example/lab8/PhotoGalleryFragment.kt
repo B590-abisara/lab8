@@ -42,8 +42,12 @@ class PhotoGalleryFragment : Fragment() {
 
         val flicker: Flicker = retrofit.create(Flicker::class.java)
         viewLifecycleOwner.lifecycleScope.launch {
-            val response = PhotoRepository().fetchContents()
-            Log.d(TAG, "response received: $response")
+            try {
+                val response = PhotoRepository().fetchPhotos()
+                Log.d(TAG, "response received: $response")
+            } catch (exception: Exception) {
+                Log.e(TAG, "Failed to fetch gallery items", exception)
+            }
         }
 
     }

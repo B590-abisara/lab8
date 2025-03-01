@@ -21,6 +21,6 @@ class PhotoRepository {
     }
 
     suspend fun fetchContents() = flicker.fetchContents()
-    suspend fun fetchPhotos(): List<GalleryItem> =
-        flicker.fetchPhotos().photos.galleryItems
+    suspend fun fetchPhotos(page: Int): List<GalleryItem> =
+        flicker.fetchPhotos(page = page).photos.galleryItems
 }

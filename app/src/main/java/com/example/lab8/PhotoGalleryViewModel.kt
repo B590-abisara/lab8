@@ -3,7 +3,12 @@ package com.example.lab8
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.lab8.network.GalleryItem
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,24 +22,16 @@ class PhotoGalleryViewModel : ViewModel() {
     private val _galleryItems = MutableStateFlow<List<GalleryItem>>(emptyList())
     val galleryItems: StateFlow<List<GalleryItem>> = _galleryItems.asStateFlow()
 
+    val photoPagingFlow: Flow<PagingData<GalleryItem>> = Pager(
+        config = PagingConfig(
+            pageSize = 100,  // Load 100 images per page
+            enablePlaceholders = false
+        ),
+        pagingSourceFactory = { PhotoPagingSource(photoRepository) }
+    ).flow.cachedIn(viewModelScope)
+
     init {
-        Log.d(TAG, "ViewModel created")  // 🔍 Debugging ViewModel recreation
-        fetchPhotos()
+        Log.d(TAG, "ViewModel created")
     }
 
-    private fun fetchPhotos() {
-        viewModelScope.launch {
-            if (_galleryItems.value.isNotEmpty()) {  // ✅ Prevent re-fetching
-                Log.d(TAG, "Skipping fetch, data already loaded")  // 🔍 Debugging unnecessary fetch
-                return@launch
-            }
-            try {
-                val items = photoRepository.fetchPhotos()
-                _galleryItems.value = items
-                Log.d(TAG, "Items received: $items")
-            } catch (ex: Exception) {
-                Log.e(TAG, "Failed to fetch gallery items", ex)
-            }
-        }
-    }
 }

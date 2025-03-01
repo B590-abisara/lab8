@@ -18,18 +18,14 @@ class PhotoGalleryViewModel : ViewModel() {
     val galleryItems: StateFlow<List<GalleryItem>> = _galleryItems.asStateFlow()
 
     init {
-        Log.d(TAG, "ViewModel created")  // 🔍 Debugging ViewModel recreation
-        fetchPhotos()
-    }
-
-    private fun fetchPhotos() {
+        Log.d(TAG, "ViewModel created")
         viewModelScope.launch {
-            if (_galleryItems.value.isNotEmpty()) {  // ✅ Prevent re-fetching
-                Log.d(TAG, "Skipping fetch, data already loaded")  // 🔍 Debugging unnecessary fetch
+            if (_galleryItems.value.isNotEmpty()) {
+                Log.d(TAG, "Skipping fetch, data already loaded")
                 return@launch
             }
             try {
-                val items = photoRepository.fetchPhotos()
+                val items = photoRepository.searchPhotos("birds")
                 _galleryItems.value = items
                 Log.d(TAG, "Items received: $items")
             } catch (ex: Exception) {
@@ -37,4 +33,5 @@ class PhotoGalleryViewModel : ViewModel() {
             }
         }
     }
+
 }

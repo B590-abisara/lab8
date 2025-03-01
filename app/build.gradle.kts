@@ -55,5 +55,8 @@ dependencies {
     implementation("com.squareup.moshi:moshi:1.15.0")
     kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
-
+    implementation("androidx.fragment:fragment-ktx:1.4.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
+    implementation("io.coil-kt:coil:2.0.0-rc02")
 }

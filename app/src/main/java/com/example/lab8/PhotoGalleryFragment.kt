@@ -6,15 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.lab8.databinding.FragmentPhotoGalleryBinding
 import com.example.lab8.network.Flicker
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 private const val TAG = "PhotoGalleryFragment"
 class PhotoGalleryFragment : Fragment() {
+
+    private val photoGalleryViewModel: PhotoGalleryViewModel by activityViewModels()
 
     private var _binding: FragmentPhotoGalleryBinding? = null
     private val binding
@@ -32,25 +39,20 @@ class PhotoGalleryFragment : Fragment() {
         binding.photoGrid.layoutManager = GridLayoutManager(context, 3)
         return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("https://www.flickr.com")
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .build()
-
-        val flicker: Flicker = retrofit.create(Flicker::class.java)
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val response = PhotoRepository().fetchPhotos()
-                Log.d(TAG, "response received: $response")
-            } catch (exception: Exception) {
-                Log.e(TAG, "Failed to fetch gallery items", exception)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                photoGalleryViewModel.galleryItems.collectLatest { items ->
+                    Log.d(TAG,  "response received:$items")
+                    binding.photoGrid.adapter = PhotoListAdapter(items)
+                }
             }
         }
-
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
